@@ -2,4 +2,4 @@
 
 NLP toolkit written in C++11
 
-see wiki or `Makefile` for detail
+For detail, please see wiki or README file in each directory.
