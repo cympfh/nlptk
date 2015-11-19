@@ -8,14 +8,15 @@ void usage() {
   cerr << "usage: tfidf.exe [options] [file]" << endl;
   cerr << "options:" << endl;
   cerr << "  -d, --delimiter <word>    specify delimiter word separating documents (default='---')" << endl;
-  cerr << "  -N <int>                  output top N featurefull words for each doc. specify -1 to output all words (default=-1)" << endl;
+  cerr << "  -N <int>                  output up-to N words for each doc (in default, outpu all words)" << endl;
+  cerr << "  --limit <double>          output only words whose tf-idf > limit" << endl;
   cerr << "  -?, --help" << endl;
   cerr << "file:" << endl;
   cerr << "  read this path. When not specified, read stdin." << endl;
   exit(0);
 }
 
-void read(istream&cin, string delimiter, int N) {
+void read(istream&cin, string delimiter, int N, double limit) {
   string word;
   vector<map<string, int>> docs = { {} };
   vector<int> doc_size = { 0 };
@@ -45,11 +46,19 @@ void read(istream&cin, string delimiter, int N) {
         * log(static_cast<double>(D) / df[word]);
       ls.push_back(make_pair(tfidf, word));
     }
+    // ranking
     sort(begin(ls), end(ls), greater<pair<double, string>>());
-    for (int j = 0; j < (N==-1 ? ls.size() : N); ++j) {
-      cout << ls[j].first << ' ' << ls[j].second << endl;
+    // output
+    {
+      int m = 0;
+      for (int j = 0; j < ls.size(); ++j) {
+        if (N > 0 and m >= N) break;
+        if (ls[j].first <= limit) break;
+        cout << ls[j].first << ' ' << ls[j].second << endl;
+        ++m;
+      }
+      if (i < D - 1) cout << delimiter << endl;
     }
-    if (i < D - 1) cout << delimiter << endl;
   }
 }
 
@@ -58,6 +67,8 @@ int main(int argc, char*argv[])
   string delimiter = "---";
   string doc_path = "";
   int N = -1;
+  double limit = -1.0;
+
   for (int i = 1; i < argc; ++i) {
     string arg = argv[i];
     if (arg == "-?" or arg == "--help" or arg == "-h") {
@@ -71,16 +82,20 @@ int main(int argc, char*argv[])
       N = atoi(argv[i+1]);
       ++i;
     }
+    else if (arg == "--limit") {
+      limit = atol(argv[i+1]);
+      ++i;
+    }
     else {
       doc_path = argv[i];
     }
   }
 
   if (doc_path == "") {
-    read(cin, delimiter, N);
+    read(cin, delimiter, N, limit);
   } else {
     ifstream sin(doc_path);
-    read(sin, delimiter, N);
+    read(sin, delimiter, N, limit);
   }
 
   return 0;
