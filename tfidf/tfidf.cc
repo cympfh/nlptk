@@ -8,6 +8,7 @@ void usage() {
   cerr << "usage: tfidf.exe [options] [file]" << endl;
   cerr << "options:" << endl;
   cerr << "  -d, --delimiter <word>    specify delimiter word separating documents (default='---')" << endl;
+  cerr << "  --no-idf                  calc only tf" << endl;
   cerr << "  -N <int>                  output up-to N words for each doc (in default, outpu all words)" << endl;
   cerr << "  --limit <double>          output only words whose tf-idf > limit" << endl;
   cerr << "  -?, --help" << endl;
@@ -16,7 +17,7 @@ void usage() {
   exit(0);
 }
 
-void read(istream&cin, string delimiter, int N, double limit) {
+void read(istream&cin, string delimiter, int N, double limit, bool ONLYTF) {
   string word;
   vector<map<string, int>> docs = { {} };
   vector<int> doc_size = { 0 };
@@ -44,6 +45,7 @@ void read(istream&cin, string delimiter, int N, double limit) {
       double tfidf =
         static_cast<double>(tf) / doc_size[i]
         * log(static_cast<double>(D) / df[word]);
+      if (ONLYTF) tfidf = static_cast<double>(tf) / doc_size[i];
       ls.push_back(make_pair(tfidf, word));
     }
     // ranking
@@ -68,6 +70,7 @@ int main(int argc, char*argv[])
   string doc_path = "";
   int N = -1;
   double limit = -1.0;
+  bool ONLYTF=false;
 
   for (int i = 1; i < argc; ++i) {
     string arg = argv[i];
@@ -82,6 +85,9 @@ int main(int argc, char*argv[])
       N = atoi(argv[i+1]);
       ++i;
     }
+    else if (arg == "--no-idf") {
+      ONLYTF=true;
+    }
     else if (arg == "--limit") {
       limit = atol(argv[i+1]);
       ++i;
@@ -92,10 +98,10 @@ int main(int argc, char*argv[])
   }
 
   if (doc_path == "") {
-    read(cin, delimiter, N, limit);
+    read(cin, delimiter, N, limit, ONLYTF);
   } else {
     ifstream sin(doc_path);
-    read(sin, delimiter, N, limit);
+    read(sin, delimiter, N, limit, ONLYTF);
   }
 
   return 0;
