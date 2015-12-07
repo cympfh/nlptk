@@ -32,6 +32,28 @@ sorted by tf-idf.
 0 b
 ```
 
+## input text format
+
+```
+<doc1>
+---
+<doc2>
+---
+<doc3>
+```
+
+or
+
+```
+<doc1>
+---
+<doc2>
+---
+<doc3>
+---
+```
+
+
 # top 2 words (for each)
 
 ```bash

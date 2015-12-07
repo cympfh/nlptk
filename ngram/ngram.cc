@@ -48,6 +48,13 @@ void read_docs(istream& sin, const vector<int>&ns)
       }
     }
   }
+
+  for (int i = grams.size() - 1; i >= 0; --i) {
+    if (grams[i].size() == 0) {
+      grams.erase(begin(grams) + i);
+    }
+  }
+
 }
 
 void usage(){
@@ -94,7 +101,7 @@ int main(int argc, char*argv[])
       ++i;
     }
     else if (arg == "-l" or arg == "--limit") {
-      limit = atol(argv[i+1]);
+      limit = atof(argv[i+1]);
       ++i;
     }
     else if (arg == "-v" or arg == "--verbose") {

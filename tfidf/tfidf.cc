@@ -32,6 +32,14 @@ void read(istream&cin, string delimiter, int N, double limit, bool ONLYTF) {
       doc_size[i] += 1;
     }
   }
+
+  for (int i = docs.size() - 1; i >= 0; --i) {
+    if (doc_size[i] == 0) {
+      docs.erase(begin(docs) + i);
+      doc_size.erase(begin(doc_size) + i);
+    }
+  }
+
   int D = docs.size();
   map<string, int> df;
   for (int i = 0; i < D; ++i) {

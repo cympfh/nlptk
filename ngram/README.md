@@ -1,13 +1,23 @@
-ngram.exe counts the frequency of every n-gram.
+ngram.exe enumerate n-grams and counts its frequency,
+and its tf-idf.
 
 ```bash
-   g++-4.8 -O3 -o ngram.exe -std=c++11 ngram.cc
-   cat sample
-a b c d
-a b b c
+   ./ngram.exe -h
+usage: ngram.exe [options] [file]
+options:
+   -n <ints>                 n of grams (allow multiple integers separated by comma)
+   <ints> ::= <int> | <int>,<ints>
+   <int> ::= [1-9][0-9]*
+   --tfidf                   not freq but tfidf (docs separeted by delimiter)
+   -d, --delimiter <word>    specify delimiter word separating documents (default='---')
+   -l, --limit <double>      freq (or tfidf) >= limit
+   -v, --verbose             verbose
+   -h, --help                print this
+file:
+   specify a textfile. when no file specified, cin will read.
 ```
 
-## simple n-gram
+## enumerate all bigrams
 
 ```bash
    ./ngram.exe -n 2 sample # ./ngram.exe -v -n 2 <sample # also ok
@@ -23,8 +33,10 @@ a b b c
 output each line is:
 `<n> <freq> <n-gram>`
 
-```
-   ./ngram.exe -n 2,3 sample # bi- and tri-gram
+## bigrams and trigrams
+
+```bash
+   ./ngram.exe -n 2,3 sample
 2 2 __BOS__ a
 3 2 __BOS__ a b
 2 2 a b
@@ -39,6 +51,16 @@ output each line is:
 2 1 c d
 3 1 c d __EOS__
 2 1 d __EOS__
+```
+
+## limit by frequency
+
+```bash
+   ./ngram.exe -n 2,3 --limit 2 sample
+2 2 __BOS__ a
+3 2 __BOS__ a b
+2 2 a b
+2 2 b c
 ```
 
 ## tf-idf
