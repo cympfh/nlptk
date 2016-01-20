@@ -1,0 +1,67 @@
+#!/usr/bin/env ruby
+# coding: utf-8
+
+if ARGV.size != 2
+  STDERR.puts "aprf <answer> <predict>"
+  exit 0
+end
+
+ans = File.readlines(ARGV[0]).map {|line|
+  line.chomp.split(/[ \t]/)[0]
+}
+
+prd = File.readlines(ARGV[1]).map {|line|
+  line.chomp.split(/[ \t]/)[0]
+}
+
+# assert ans.size == prd.size
+
+N = ans.size
+
+memo = {}
+
+for i in 0 ... N do
+  ans[i] = ans[i]
+  memo[ans[i]] = { :tp => 0, :fp => 0, :fn => 0 } if memo[ans[i]] == nil
+  memo[prd[i]] = { :tp => 0, :fp => 0, :fn => 0 } if memo[prd[i]] == nil
+  if ans[i] == prd[i]
+    memo[ans[i]][:tp] += 1
+  else
+    memo[ans[i]][:fn] += 1
+    memo[prd[i]][:fp] += 1
+  end
+end
+
+labels = memo.keys.sort!
+
+## Accuracy
+
+acc = 0
+for label in labels
+  acc += memo[label][:tp]
+end
+
+puts "Accuracy #{acc.to_f / N} #{acc.to_f / N * 100}"
+
+## Prec, Rec, F1 for each label
+
+def normalize(x)
+  x = 0 if x.nan?
+  m = 100000.0
+  (x * m).round / m
+end
+
+for label in labels do
+  pre = memo[label][:tp].to_f / ( memo[label][:tp] + memo[label][:fp] )
+  pre = normalize pre
+  rec = memo[label][:tp].to_f / ( memo[label][:tp] + memo[label][:fn] )
+  rec = normalize rec
+  f1 = 2 * pre * rec / (pre + rec)
+  f1 = normalize f1
+
+  puts "# label: #{label}"
+  puts "Precision #{pre}"
+  puts "Recall #{rec}"
+  puts "F1 #{f1}"
+end
+
