@@ -40,7 +40,7 @@ tf のファイルから tf-idf を計算する
 0.0 A
 ```
 
-### filter by limit
+### filter by limit (`>=`)
 
 ```
    ./tfidf --limit 0.1 sample/ngram_a sample/ngram_c
