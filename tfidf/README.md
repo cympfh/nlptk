@@ -1,97 +1,61 @@
-# options
 
-```bash
-   ./tfidf.exe --help
-usage: tfidf.exe [options] [file]
-options:
-  -d, --delimiter <word>    specify delimiter word separating documents (default='---')
-  -N <int>                  output up-to N words for each doc (in default, outpu all words)
-  --limit <double>          output only words whose tf-idf > limit
-  -?, --help
-file:
-  read this path. When not specified, read stdin.
-```
+tf のファイルから tf-idf を計算する
 
-# easy example
-
-When no options passed, this program outputs all words for each document,
-sorted by tf-idf.
-
-```bash
-   ./tfidf.exe sample.input
-   # or
-   ./tfidf.exe < sample.input
-0.27031 a
-0 b
----
-0.27031 c
-0 b
----
-0.135155 c
-0.135155 a
-0 b
-```
-
-## input text format
+### format
 
 ```
-<doc1>
----
-<doc2>
----
-<doc3>
+   cat sample/ngram_a
+10 A
+5 B A
+1 B A C
+
+   cat sample/ngram_b
+100 A
+20 B A
+1 B A C
+
+   cat sample/ngram_c
+10 A
 ```
 
-or
+### simple usage
 
 ```
-<doc1>
----
-<doc2>
----
-<doc3>
----
+   ./tfidf sample/ngram_a sample/ngram_b
+# sample/ngram_a
+0.0 A
+0.0 B A
+0.0 B A C
+# sample/ngram_b
+0.0 A
+0.0 B A
+0.0 B A C
+
+   ./tfidf sample/ngram_a sample/ngram_c
+# sample/ngram_a
+0.0 A
+3.4657359027997265 B A
+0.6931471805599453 B A C
+# sample/ngram_c
+0.0 A
 ```
 
+### filter by limit
 
-# top 2 words (for each)
-
-```bash
-   ./tfidf.exe -N 2 sample.input
-0.27031 a
-0 b
----
-0.27031 c
-0 b
----
-0.135155 c
-0.135155 a
+```
+   ./tfidf --limit 0.1 sample/ngram_a sample/ngram_c
+# sample/ngram_a
+3.4657359027997265 B A
+0.6931471805599453 B A C
+# sample/ngram_c
 ```
 
-# filtering by tf-idf
+### output of specified files (whitelist with `+`)
 
-Following outputs only words whose tf-idf > limit (greater then and not equal).
-
-```bash
-   ./tfidf.exe --limit 0.0 sample.input
-0.27031 a
----
-0.27031 c
----
-0.135155 c
-0.135155 a
 ```
-
-## both
-
-filtering, then top N.
-
-```bash
-   ./tfidf.exe -N 1 --limit 0.1 sample.input
-0.27031 a
----
-0.27031 c
----
-0.135155 c
+   ./tfidf --limit 0.1 +sample/ngram_a sample/ngram_c
+# sample/ngram_a
+3.4657359027997265 B A
+0.6931471805599453 B A C
 ```
 

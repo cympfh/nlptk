@@ -1,0 +1,57 @@
+#!/usr/bin/env ruby
+# coding: utf-8
+
+files = []
+outputs = []
+limit = 0.0
+i=0
+while i < ARGV.size
+  if ARGV[i] == "--limit" or ARGV[i] == "-l"
+    limit = ARGV[i+1].to_f
+    i += 2
+  else
+    if ARGV[i][0] == '+'
+      files << ARGV[i][1 .. -1]
+      outputs << ARGV[i][1 .. -1]
+    else
+      files << ARGV[i]
+    end
+    i += 1
+  end
+end
+N=files.size.to_f
+
+if files.size == 0
+  STDERR.puts "requires two ore more documents in order to calculate tf-idf"
+  exit 0
+end
+if outputs.size == 0
+  outputs = files
+end
+
+memo = {}
+rev = {}
+
+for f in files
+  File.readlines(f).each {|line|
+    xs = line.chomp.split
+    tf = xs[0].to_i
+    body = xs[1..-1].join(' ')
+    memo[body] = {} if memo[body] == nil
+    memo[body][f] = tf
+    rev[f] = [] if rev[f] == nil
+    rev[f] << body
+  }
+end
+
+for f in outputs
+  puts "# #{f}"
+  for body in rev[f]
+    tf = memo[body][f]
+    df = memo[body].size
+    tfidf = tf * Math.log(N / df)
+    if tfidf >= limit
+      puts "#{tfidf} #{body}"
+    end
+  end
+end
