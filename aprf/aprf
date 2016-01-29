@@ -51,6 +51,8 @@ def normalize(x)
   (x * m).round / m
 end
 
+result = {}
+
 for label in labels do
   pre = memo[label][:tp].to_f / ( memo[label][:tp] + memo[label][:fp] )
   pre = normalize pre
@@ -58,10 +60,23 @@ for label in labels do
   rec = normalize rec
   f1 = 2 * pre * rec / (pre + rec)
   f1 = normalize f1
-
-  puts "# label: #{label}"
-  puts "Precision #{pre}"
-  puts "Recall #{rec}"
-  puts "F1 #{f1}"
+  result[label] = {
+    :pre => pre,
+    :rec => rec,
+    :f1 => f1,
+    :n => memo[label][:tp] + memo[label][:fn],
+  }
 end
+
+for label in labels do
+  puts "# label: #{label}"
+  puts "Precision #{result[label][:pre]}"
+  puts "Recall #{result[label][:rec]}"
+  puts "F1 #{result[label][:f1]}"
+end
+
+macroavg = labels.map{|label| result[label][:f1]}.inject(:+).to_f / labels.length
+microavg = labels.map{|label| result[label][:f1] * result[label][:n]}.inject(:+).to_f / labels.map{|label| result[label][:n]}.inject(:+)
+puts "F1-macro-avg #{macroavg}"
+puts "F1-micro-avg #{microavg}"
 
